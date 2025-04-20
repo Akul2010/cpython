@@ -10807,7 +10807,8 @@ static pytype_slotdef slotdefs[] = {
            "__repr__($self, /)\n--\n\nReturn repr(self)."),
     TPSLOT(__hash__, tp_hash, slot_tp_hash, wrap_hashfunc,
            "__hash__($self, /)\n--\n\nReturn hash(self)."),
-    FLSLOT(__call__, tp_call, slot_tp_call, (wrapperfunc)(void(*)(void))wrap_call,
+    FLSLOT(__call__, tp_call, slot_tp_call,
+           _Py_FUNC_CAST(wrapperfunc, wrap_call),
            "__call__($self, /, *args, **kwargs)\n--\n\nCall self as a function.",
            PyWrapperFlag_KEYWORDS),
     TPSLOT(__str__, tp_str, slot_tp_str, wrap_unaryfunc,
@@ -10844,7 +10845,8 @@ static pytype_slotdef slotdefs[] = {
     TPSLOT(__delete__, tp_descr_set, slot_tp_descr_set,
            wrap_descr_delete,
            "__delete__($self, instance, /)\n--\n\nDelete an attribute of instance."),
-    FLSLOT(__init__, tp_init, slot_tp_init, (wrapperfunc)(void(*)(void))wrap_init,
+    FLSLOT(__init__, tp_init, slot_tp_init,
+           _Py_FUNC_CAST(wrapperfunc, wrap_init),
            "__init__($self, /, *args, **kwargs)\n--\n\n"
            "Initialize self.  See help(type(self)) for accurate signature.",
            PyWrapperFlag_KEYWORDS),
@@ -11233,7 +11235,14 @@ update_one_slot(PyTypeObject *type, pytype_slotdef *p)
         }
         else {
             use_generic = 1;
-            generic = p->function;
+            if (generic == NULL && Py_IS_TYPE(descr, &PyMethodDescr_Type) &&
+                *ptr == ((PyMethodDescrObject *)descr)->d_method->ml_meth)
+            {
+                generic = *ptr;
+            }
+            else {
+                generic = p->function;
+            }
             if (p->function == slot_tp_call) {
                 /* A generic __call__ is incompatible with vectorcall */
                 type_clear_flags(type, Py_TPFLAGS_HAVE_VECTORCALL);
