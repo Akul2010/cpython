@@ -1304,7 +1304,7 @@ x = (
                              "Bf''",
                              "BF''",]
         double_quote_cases = [case.replace("'", '"') for case in single_quote_cases]
-        self.assertAllRaise(SyntaxError, 'invalid syntax',
+        self.assertAllRaise(SyntaxError, 'prefixes are incompatible',
                             single_quote_cases + double_quote_cases)
 
     def test_leading_trailing_spaces(self):
@@ -1380,7 +1380,7 @@ x = (
         for conv in ' s', ' s ':
             self.assertAllRaise(SyntaxError,
                                 "f-string: conversion type must come right after the"
-                                " exclamanation mark",
+                                " exclamation mark",
                                 ["f'{3!" + conv + "}'"])
 
         self.assertAllRaise(SyntaxError,
