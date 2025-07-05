@@ -1,6 +1,6 @@
 //  This implements the reference cycle garbage collector.
 //  The Python module interface to the collector is in gcmodule.c.
-//  See https://devguide.python.org/internals/garbage-collector/
+//  See InternalDocs/garbage_collector.md for more infromation.
 
 #include "Python.h"
 #include "pycore_ceval.h"         // _Py_set_eval_breaker_bit()
@@ -493,6 +493,7 @@ update_refs(PyGC_Head *containers)
         next = GC_NEXT(gc);
         PyObject *op = FROM_GC(gc);
         if (_Py_IsImmortal(op)) {
+            assert(!_Py_IsStaticImmortal(op));
             _PyObject_GC_UNTRACK(op);
            gc = next;
            continue;
